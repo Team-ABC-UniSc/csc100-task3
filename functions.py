@@ -72,13 +72,50 @@ async def start_up(conn):
         await asyncio.sleep(5)  # Wait while it stands up
     return
 
-async def move(conn, distance, speed = 0.5):
-    """move the robot forward or backward
+
+async def move(conn, distance, speed=1):
+    """Move robot a specific distance in meters.
+    
     Args:
         conn: connection to the robot
-        distance: distance to move
-        speed: speed of the robot
+        distance: distance in meters (+forward, -backward)
+        speed: velocity in m/s (recommend 0.2-0.5 for accuracy)
     """
+    # Set velocity direction
+    velocity = speed if distance >= 0 else -speed
+    
+    # Calculate how long to move
+    duration = abs(distance) / speed
+    
+    direction = "forward" if distance > 0 else "backward"
+    print(f"Moving {direction} {abs(distance)}m at {speed}m/s (duration: {duration:.2f}s)...")
+    
+    # Send velocity commands repeatedly (every 0.1s) for the duration
+    start_time = asyncio.get_event_loop().time()
+    
+    try:
+        while (asyncio.get_event_loop().time() - start_time) < duration:
+            await conn.datachannel.pub_sub.publish_request_new(
+                RTC_TOPIC["SPORT_MOD"],
+                {
+                    "api_id": SPORT_CMD["Move"],
+                    "parameter": {"x": velocity, "y": 0, "z": 0}
+                }
+            )
+            await asyncio.sleep(0.1)  # Send command every 100ms
+    
+    except Exception as e:
+        print(f"Movement error: {e}")
+    
+    finally:
+        # Always stop at the end
+        await stop_move(conn)
+    
+    return
+
+"""   
+async def move(conn, distance, speed = 2.0):
+
     #set velocity, positive for forward, negative for backward
     if distance >= 0:
         velocity = speed
@@ -105,14 +142,16 @@ async def move(conn, distance, speed = 0.5):
     await asyncio.sleep(duration)
     await stop_move(conn)
     return
+"""
 
+"""
 async def turn(conn, degrees, yaw_rate_rad_s=0.7):
-    """Turn the robot by a specific angle in degrees.
-    Args:
-        conn: connection to the robot
-        degrees: +right / -left turn angle in degrees
-        yaw_rate_rad_s: angular velocity magnitude (rad/s)
-    """
+    #Turn the robot by a specific angle in degrees.
+    #Args:
+    #    conn: connection to the robot
+    #    degrees: +right / -left turn angle in degrees
+    #    yaw_rate_rad_s: angular velocity magnitude (rad/s)
+
     import math
     direction_sign = 1 if degrees >= 0 else -1
     duration_s = abs(math.radians(degrees)) / yaw_rate_rad_s
@@ -130,14 +169,53 @@ async def turn(conn, degrees, yaw_rate_rad_s=0.7):
     return
 
 async def jump_forward(conn):
-    """Make the robot jump"""
+    #Make the robot jump
     print("Jumping...")
     await conn.datachannel.pub_sub.publish_request_new(
         RTC_TOPIC["SPORT_MOD"],
-        {"api_id": SPORT_CMD["FrontPounce"], "parameter": {"data": True}}
+        {"api_id": SPORT_CMD["FrontJump"], "parameter": {"data": True}}
     )
     await asyncio.sleep(2)
     await stop_move(conn)
+    return
+"""
+
+async def turn(conn, degrees, yaw_rate_rad_s=0.5):
+    """Turn the robot by a specific angle in degrees.
+    
+    Args:
+        conn: connection to the robot
+        degrees: angle to turn (+right / -left) in degrees
+        yaw_rate_rad_s: angular velocity in rad/s (recommend 0.3-0.7)
+    """
+    import math
+    
+    direction_sign = 1 if degrees >= 0 else -1
+    duration_s = abs(math.radians(degrees)) / yaw_rate_rad_s
+    
+    direction = "right" if degrees >= 0 else "left"
+    print(f"Turning {direction} {abs(degrees)}° at {yaw_rate_rad_s} rad/s (duration: {duration_s:.2f}s)...")
+    
+    # Send continuous turn commands
+    start_time = asyncio.get_event_loop().time()
+    
+    try:
+        while (asyncio.get_event_loop().time() - start_time) < duration_s:
+            await conn.datachannel.pub_sub.publish_request_new(
+                RTC_TOPIC["SPORT_MOD"],
+                {
+                    "api_id": SPORT_CMD["Move"],
+                    "parameter": {"x": 0, "y": 0, "z": direction_sign * yaw_rate_rad_s}
+                }
+            )
+            await asyncio.sleep(0.1)  # Send command every 100ms
+    
+    except Exception as e:
+        print(f"Turn error: {e}")
+    
+    finally:
+        await stop_move(conn)
+    
     return
 
 async def toggle_light_on(conn, brightness=10):
