@@ -27,16 +27,26 @@ async def main():
         conn = await connect_to_robot()
         await start_up(conn)
 
-        await move(conn,0.5)
-        await turn(conn,45)
-        await move(conn,0.5)
-        await turn(conn,45)
-        await move(conn,0.5)
-        await turn(conn,45)
-        await move(conn,0.5)
-        await turn(conn,45)
-        await move(conn,0.5)
+        #first move
+        await move(conn, 3.5)
+        await asyncio.sleep(0.1)
+        #through tunnel
+        await turn(conn, -73)
+        await toggle_light_on(conn)
+        await move(conn, 5.7)
+        await toggle_light_off(conn)
+        #over ramp
+        await turn(conn, -135)
+        await move(conn,3.7)
+        #walk to hurdle
+        await turn(conn, -55)
+        await move(conn, 5.6)
+        #jump over hurdle
         await jump_forward(conn)
+
+        await asyncio.sleep(1)
+
+
         await conn.disconnect()
     except ValueError as e:
         # Log any value errors that occur during the process.

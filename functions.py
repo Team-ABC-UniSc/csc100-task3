@@ -110,6 +110,7 @@ async def move(conn, distance, speed=1):
     finally:
         # Always stop at the end
         await stop_move(conn)
+        await asyncio.sleep(1)
     
     return
 
@@ -167,6 +168,7 @@ async def turn(conn, degrees, yaw_rate_rad_s=0.7):
     await asyncio.sleep(duration_s)
     await stop_move(conn)
     return
+"""
 
 async def jump_forward(conn):
     #Make the robot jump
@@ -178,15 +180,15 @@ async def jump_forward(conn):
     await asyncio.sleep(2)
     await stop_move(conn)
     return
-"""
 
-async def turn(conn, degrees, yaw_rate_rad_s=0.5):
+
+async def turn(conn, degrees, yaw_rate_rad_s=0.8):
     """Turn the robot by a specific angle in degrees.
     
     Args:
         conn: connection to the robot
         degrees: angle to turn (+right / -left) in degrees
-        yaw_rate_rad_s: angular velocity in rad/s (recommend 0.3-0.7)
+        yaw_rate_rad_s: angular velocity in rad/s (try 0.6-1.2, default 0.8)
     """
     import math
     
@@ -215,9 +217,9 @@ async def turn(conn, degrees, yaw_rate_rad_s=0.5):
     
     finally:
         await stop_move(conn)
+        await asyncio.sleep(1)
     
     return
-
 async def toggle_light_on(conn, brightness=10):
     """ Args:
     conn: connection of robot
@@ -240,6 +242,9 @@ async def toggle_light_on(conn, brightness=10):
             }
         }
     )
+           
+    await asyncio.sleep(1)
+
     return
 
 async def toggle_light_off(conn):
@@ -252,6 +257,8 @@ async def toggle_light_off(conn):
         RTC_TOPIC["VUI"],
         {"api_id":1005, "parameter": {"brightness": 0}}
     )
+    await asyncio.sleep(1)
+
     return
 
 
