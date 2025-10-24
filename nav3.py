@@ -27,20 +27,21 @@ async def main():
         conn = await connect_to_robot()
         await start_up(conn)
 
+        await toggle_light_off(conn)
         #first move
-        await move(conn, 3.5)
+        await move(conn, 3.0)
         await asyncio.sleep(0.1)
         #through tunnel
-        await turn(conn, -73)
+        await turn(conn, -75)
         await toggle_light_on(conn)
-        await move(conn, 5.7)
+        await move(conn, 5.5)
         await toggle_light_off(conn)
         #over ramp
-        await turn(conn, -135)
-        await move(conn,3.7)
+        await turn(conn, -121)
+        await move(conn,3.6)
         #walk to hurdle
-        await turn(conn, -55)
-        await move(conn, 5.6)
+        await turn(conn, -75)
+        await move(conn, 4.9)
         #jump over hurdle
         await jump_forward(conn)
 
