@@ -43,8 +43,8 @@ async def main():
         await turn(conn, -121)
         await move(conn,3.9)
         #walk to hurdle
-        await turn(conn, -77)
-        await move(conn, 4.9)
+        await turn(conn, -75)
+        await move(conn, 4.7)
         #jump over hurdle
         await jump_forward(conn)
 
