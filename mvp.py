@@ -3,7 +3,7 @@ import logging
 import json
 import sys
 from go2_webrtc_driver.webrtc_driver import Go2WebRTCConnection, WebRTCConnectionMethod
-from go2_webrtc_driver.constants import RTC_TOPIC, SPORT_CMD
+from go2_webrtc_driver.constants import RTC_TOPIC, SPORT_CMD, VUI_COLOR
 from functions import *
 
 # Enable logging for debugging
@@ -27,20 +27,23 @@ async def main():
         conn = await connect_to_robot()
         await start_up(conn)
 
+        # Initialize light to off
         await toggle_light_off(conn)
+        await asyncio.sleep(0.5)  # Give time for command to process
         #first move
-        await move(conn, 3.0)
-        await asyncio.sleep(0.1)
+        await move(conn, 3.3)
         #through tunnel
-        await turn(conn, -75)
+        await turn(conn, -73)
         await toggle_light_on(conn)
-        await move(conn, 5.5)
+        await asyncio.sleep(0.5)  # Give time for light to turn on
+        await move(conn, 5.65)
         await toggle_light_off(conn)
+        await asyncio.sleep(0.5)  # Give time for light to turn off
         #over ramp
         await turn(conn, -121)
-        await move(conn,3.6)
+        await move(conn,3.9)
         #walk to hurdle
-        await turn(conn, -75)
+        await turn(conn, -77)
         await move(conn, 4.9)
         #jump over hurdle
         await jump_forward(conn)
