@@ -40,11 +40,11 @@ async def main():
         await toggle_light_off(conn)
         await asyncio.sleep(0.5)  # Give time for light to turn off
         #over ramp
-        await turn(conn, -121)
+        await turn(conn, -117)
         await move(conn,3.9)
         #walk to hurdle
-        await turn(conn, -75)
-        await move(conn, 4.7)
+        await turn(conn, -72)
+        await move(conn, 4.9)
         #jump over hurdle
         await jump_forward(conn)
 
